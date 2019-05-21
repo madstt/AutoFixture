@@ -4,6 +4,10 @@
     <ProjectReference Include="..\AutoFixture\AutoFixture.csproj" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="rocks" Version="3.1.0" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
