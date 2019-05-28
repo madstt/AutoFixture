@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\AutoFixture\AutoFixture.csproj" />
@@ -9,7 +9,9 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>AutoFixture.AutoRocks</AssemblyName>
+    <RootNamespace>AutoFixture.AutoRocks</RootNamespace>
   </PropertyGroup>
 
 </Project>

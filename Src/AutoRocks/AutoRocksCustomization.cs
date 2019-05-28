@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using AutoFixture;
 using AutoFixture.Kernel;
+using Rocks;
 
-namespace AutoRocks
+namespace AutoFixture.AutoRocks
 {
     /// <summary>
     /// Enables auto-mocking using Rocks.
@@ -23,7 +23,7 @@ namespace AutoRocks
                 new MethodInvoker(
                     new MockConstructorQuery()));
 
-            if (ConfigureMembers)
+            if (this.ConfigureMembers)
             {
                 mockBuilder = new Postprocessor(
                     builder: mockBuilder,
@@ -33,6 +33,8 @@ namespace AutoRocks
                         new AutoMockPropertiesCommand()));
 
             }
+
+            fixture.Customizations.Add(mockBuilder);
         }
 
         public bool ConfigureMembers { get; set; }
@@ -73,14 +75,42 @@ namespace AutoRocks
 
     public class MockPostprocessor : ISpecimenBuilderNode
     {
+        private ISpecimenBuilder Builder { get; }
+
         public MockPostprocessor(ISpecimenBuilder builder)
         {
-            throw new NotImplementedException();
+            this.Builder = builder ?? throw new ArgumentNullException(nameof(builder));
         }
 
         public object Create(object request, ISpecimenContext context)
         {
-            throw new NotImplementedException();
+            var t = request as Type;
+            if (!t.IsMock())
+            {
+                return new NoSpecimen();
+            }
+
+            var specimen = this.Builder.Create(request, context);
+            if (specimen is NoSpecimen || specimen is OmitSpecimen || specimen == null)
+                return specimen;
+
+            Rock m = specimen as Rock;
+            if (m == null)
+            {
+                return new NoSpecimen();
+            }
+
+            var mockType = t.GetMockedType();
+            if (m.GetType().GetMockedType() != mockType)
+            {
+                return new NoSpecimen();
+            }
+
+            var configurator = (IMockConfigurator)Activator.CreateInstance(typeof(MockConfigurator<>).MakeGenericType(mockType));
+            configurator.Configure(m);
+
+            return m;
+            ;
         }
 
         public IEnumerator<ISpecimenBuilder> GetEnumerator()
